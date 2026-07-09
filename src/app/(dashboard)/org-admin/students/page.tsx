@@ -32,7 +32,7 @@ export default function OrgAdminStudents() {
       const res = await fetch("/api/students", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, organizationId: user.organizationId }),
+        body: JSON.stringify({ ...form, organizationCode: user.organizationCode }),
       });
       const data = await res.json();
       if (!res.ok) { setError(data.error || "Failed to add student"); return; }
