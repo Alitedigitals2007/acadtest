@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
       where: {
         OR: [{ email: identifier }, { username: identifier }],
       },
-      include: { organization: { select: { id: true, name: true } } },
+      include: { organization: { select: { id: true, name: true, code: true } } },
     });
 
     if (student) {
