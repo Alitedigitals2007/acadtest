@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getLagosTime } from "@/lib/utils";
 
 export async function GET(req: NextRequest) {
   try {
@@ -21,19 +22,30 @@ export async function GET(req: NextRequest) {
     if (!test) {
       return NextResponse.json({ error: "Test not found" }, { status: 404 });
     }
-    if (test.status === "closed") {
-      return NextResponse.json({ error: "This test is closed" }, { status: 403 });
+    if (test.status !== "open") {
+      return NextResponse.json({ error: "Test is not available" }, { status: 403 });
     }
-    if (test.status === "paused") {
-      return NextResponse.json({ error: "This test is currently paused" }, { status: 403 });
+    const now = getLagosTime();
+    const start = new Date(test.startDate);
+    const end = new Date(test.endDate);
+    if (now < start || now > end) {
+      return NextResponse.json({ error: "Test is not currently available" }, { status: 403 });
     }
     let parsed = test.questions.map((q) => ({
       ...q,
       options: JSON.parse(q.options),
     }));
+    if (test.shuffleQuestions) {
+      parsed = parsed.sort(() => Math.random() - 0.5);
+    }
     if (test.numQuestions && parsed.length > test.numQuestions) {
-      const shuffled = [...parsed].sort(() => Math.random() - 0.5);
-      parsed = shuffled.slice(0, test.numQuestions);
+      parsed = parsed.slice(0, test.numQuestions);
+    }
+    if (test.shuffleOptions) {
+      parsed = parsed.map((q) => ({
+        ...q,
+        options: q.options.sort(() => Math.random() - 0.5),
+      }));
     }
     return NextResponse.json({
       test: {

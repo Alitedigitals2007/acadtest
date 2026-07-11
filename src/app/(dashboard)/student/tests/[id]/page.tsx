@@ -51,23 +51,23 @@ export default function StudentTestInterface() {
     if (!stored) { router.push("/login"); return; }
     const user = JSON.parse(stored);
 
-    fetch(`/api/questions?testId=${params.id}`)
-      .then((r) => r.json())
-      .then((data) => {
-        const qs = data.questions || [];
-        fetch(`/api/tests/${params.id}`)
+fetch(`/api/questions?testId=${params.id}`)
           .then((r) => r.json())
-          .then((tData) => {
-            const found = tData.test || tData;
-            if (!found || !found.id) { setLoading(false); return; }
-            const now = new Date();
-            const start = new Date(found.startDate);
-            const end = new Date(found.endDate);
-            if (found.status !== "open" || now < start || now > end) {
-              setTest(null);
-              setLoading(false);
-              return;
-            }
+          .then((data) => {
+            const qs = data.questions || [];
+            fetch(`/api/tests/${params.id}`)
+              .then((r) => r.json())
+              .then((tData) => {
+                const found = tData.test || tData;
+                if (!found || !found.id) { setLoading(false); return; }
+                const now = new Date(new Date().toLocaleString("en-US", { timeZone: "Africa/Lagos" }));
+                const start = new Date(found.startDate);
+                const end = new Date(found.endDate);
+                if (found.status !== "open" || now < start || now > end) {
+                  setTest(null);
+                  setLoading(false);
+                  return;
+                }
             let questions = [...qs];
             if (found.shuffleQuestions) questions = shuffleArray(questions);
             if (found.numQuestions && questions.length > found.numQuestions) {

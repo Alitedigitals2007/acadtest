@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getLagosTime } from "@/lib/utils";
 
 export async function POST(req: NextRequest) {
   try {
@@ -10,10 +11,14 @@ export async function POST(req: NextRequest) {
 
     const test = await prisma.test.findUnique({
       where: { publicCode: code },
-      select: { id: true, title: true, immediateResult: true, endDate: true },
+      select: { id: true, title: true, immediateResult: true, endDate: true, status: true },
     });
     if (!test) {
       return NextResponse.json({ error: "Test not found" }, { status: 404 });
+    }
+
+    if (test.status !== "open" && test.status !== "closed") {
+      return NextResponse.json({ error: "Test is not available" }, { status: 403 });
     }
 
     const participant = await prisma.participant.findFirst({
@@ -31,14 +36,21 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "No submission found for this participant" }, { status: 404 });
     }
 
+    const now = getLagosTime();
     const testEndDate = new Date(test.endDate);
-    const now = new Date();
     const hoursSinceEnd = (now.getTime() - testEndDate.getTime()) / (1000 * 60 * 60);
 
     if (hoursSinceEnd > 48) {
       return NextResponse.json({
         error: "The 48-hour window to check results has expired. Results are no longer available.",
         expired: true,
+      }, { status: 403 });
+    }
+
+    if (!test.immediateResult) {
+      return NextResponse.json({
+        error: "Results are not yet published. Please wait for the administrator to release results.",
+        pending: true,
       }, { status: 403 });
     }
 

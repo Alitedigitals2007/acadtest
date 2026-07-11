@@ -46,3 +46,38 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Failed to fetch result", details: String(err) }, { status: 500 });
   }
 }
+
+export async function GET(req: NextRequest) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const code = searchParams.get("code");
+    if (!code) {
+      return NextResponse.json({ error: "Code required" }, { status: 400 });
+    }
+
+    const test = await prisma.test.findUnique({
+      where: { publicCode: code },
+      include: {
+        questions: {
+          select: { id: true, questionText: true, options: true, correctAnswer: true, type: true, orderIndex: true },
+          orderBy: { orderIndex: "asc" },
+        },
+      },
+    });
+    if (!test) {
+      return NextResponse.json({ error: "Test not found" }, { status: 404 });
+    }
+
+    const questions = test.questions.map((q) => ({
+      id: q.id,
+      questionText: q.questionText,
+      options: JSON.parse(q.options),
+      correctAnswer: q.correctAnswer,
+      type: q.type,
+    }));
+
+    return NextResponse.json({ test: { id: test.id, title: test.title }, questions });
+  } catch (err) {
+    return NextResponse.json({ error: "Failed to fetch corrections", details: String(err) }, { status: 500 });
+  }
+}

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { generateCode, calculateAvailable } from "@/lib/utils";
+import { generateCode, calculateAvailable, getLagosTime } from "@/lib/utils";
 
 export async function POST(req: NextRequest) {
   try {
@@ -62,7 +62,7 @@ export async function GET(req: NextRequest) {
       where.status = status;
     } else if (studentView === "true") {
       where.status = "open";
-      const now = new Date();
+      const now = getLagosTime();
       where.AND = [
         { startDate: { lte: now } },
         { endDate: { gte: now } },
