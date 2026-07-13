@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { parseLagosDate } from "@/lib/utils";
 
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -32,7 +33,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     const data: Record<string, unknown> = {};
     for (const key of allowed) {
       if (body[key] !== undefined) {
-        data[key] = key === "startDate" || key === "endDate" ? new Date(body[key]) : body[key];
+        data[key] = key === "startDate" || key === "endDate" ? parseLagosDate(body[key]) : body[key];
       }
     }
     const test = await prisma.test.update({

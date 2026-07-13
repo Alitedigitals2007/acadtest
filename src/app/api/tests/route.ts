@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { generateCode, calculateAvailable, getLagosTime } from "@/lib/utils";
+import { generateCode, calculateAvailable, getLagosTime, parseLagosDate } from "@/lib/utils";
 
 export async function POST(req: NextRequest) {
   try {
@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
     const test = await prisma.test.create({
       data: {
         title: title.trim(), description, duration, numQuestions,
-        startDate: new Date(startDate), endDate: new Date(endDate),
+        startDate: parseLagosDate(startDate), endDate: parseLagosDate(endDate),
         shuffleQuestions: shuffleQuestions ?? false,
         shuffleOptions: shuffleOptions ?? false,
         autoMark: autoMark ?? true,
