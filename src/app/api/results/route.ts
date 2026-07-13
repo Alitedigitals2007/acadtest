@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getLagosTime } from "@/lib/utils";
 
 export async function GET(req: NextRequest) {
   try {
@@ -15,10 +16,25 @@ export async function GET(req: NextRequest) {
       include: {
         student: { select: { id: true, fullName: true, email: true, department: true, level: true } },
         participant: { select: { id: true, fullName: true, email: true, department: true, level: true } },
-        test: { select: { id: true, title: true, autoMark: true } },
+        test: { select: { id: true, title: true, autoMark: true, immediateResult: true, scheduledReleaseAt: true, endDate: true } },
       },
     });
-    return NextResponse.json({ results });
+    const now = getLagosTime();
+    const mapped = results.map((r) => {
+      const test = r.test;
+      let released = test.immediateResult;
+      if (!released && test.scheduledReleaseAt && new Date(test.scheduledReleaseAt) <= now) {
+        released = true;
+      }
+      if (!released && test.endDate && new Date(test.endDate) <= now) {
+        released = true;
+      }
+      return {
+        ...r,
+        resultReleased: released,
+      };
+    });
+    return NextResponse.json({ results: mapped });
   } catch (err) {
     return NextResponse.json({ error: "Failed to fetch results", details: String(err) }, { status: 500 });
   }

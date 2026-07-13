@@ -28,12 +28,18 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     const allowed = [
       "title", "description", "duration", "numQuestions", "startDate", "endDate",
       "status", "shuffleQuestions", "shuffleOptions", "autoMark", "showLeaderboard",
-      "enableCalculator", "immediateResult",
+      "enableCalculator", "immediateResult", "scheduledReleaseAt",
     ];
     const data: Record<string, unknown> = {};
     for (const key of allowed) {
       if (body[key] !== undefined) {
-        data[key] = key === "startDate" || key === "endDate" ? parseLagosDate(body[key]) : body[key];
+        if (key === "startDate" || key === "endDate") {
+          data[key] = parseLagosDate(body[key]);
+        } else if (key === "scheduledReleaseAt") {
+          data[key] = body[key] ? parseLagosDate(body[key]) : null;
+        } else {
+          data[key] = body[key];
+        }
       }
     }
     const test = await prisma.test.update({

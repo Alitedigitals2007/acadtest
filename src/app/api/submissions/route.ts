@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 
 export async function POST(req: NextRequest) {
   try {
-    const { studentId, testId, answers, questionIds } = await req.json();
+    const { studentId, testId, answers, questionIds, timeUsed } = await req.json();
     if (!testId || !answers) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
@@ -38,6 +38,7 @@ export async function POST(req: NextRequest) {
         score: test.autoMark ? score : null,
         percentage: test.autoMark ? percentage : null,
         status: "completed",
+        timeUsed: timeUsed ? parseInt(timeUsed) : null,
       },
     });
     return NextResponse.json({ message: "Test submitted", submission }, { status: 201 });

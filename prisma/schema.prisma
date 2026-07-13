@@ -80,6 +80,7 @@ model Test {
   showLeaderboard  Boolean  @default(false)
   enableCalculator Boolean  @default(false)
   immediateResult  Boolean  @default(true)
+  scheduledReleaseAt DateTime?
   publicCode       String   @unique
   organizationId   String
   createdAt        DateTime @default(now())
@@ -116,6 +117,7 @@ model Submission {
   percentage    Float?
   submittedAt   DateTime @default(now())
   status        String   @default("completed")
+  timeUsed      Int?
 
   student     Student?     @relation(fields: [studentId], references: [id])
   participant Participant? @relation(fields: [participantId], references: [id])

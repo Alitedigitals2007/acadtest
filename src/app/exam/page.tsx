@@ -179,6 +179,7 @@ export default function ExamPage() {
     if (submitting || submitted) return;
     setSubmitting(true);
     try {
+      const timeUsed = test ? test.duration * 60 - timeLeft : 0;
       const res = await fetch("/api/public", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -190,6 +191,7 @@ export default function ExamPage() {
           email: form.email,
           answers,
           questionIds: test!.questions.map((q) => q.id),
+          timeUsed,
         }),
       });
       const data = await res.json();
@@ -444,117 +446,160 @@ export default function ExamPage() {
     const answeredCount = Object.keys(answers).length;
 
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col">
+      <div className="h-screen bg-gray-50 flex flex-col overflow-hidden">
         {showTabWarning && (
           <div className="fixed top-0 left-0 right-0 z-50 bg-red-600 text-white px-4 py-3 text-center text-sm font-medium animate-pulse">
             {tabWarningMsg}
           </div>
         )}
 
-        <div className="bg-white border-b border-gray-200 px-3 sm:px-6 py-2 sm:py-3">
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2 sm:gap-4 min-w-0">
-              <h1 className="text-sm sm:text-lg font-bold text-gray-900 truncate">{test.title}</h1>
-              <span className="text-xs sm:text-sm text-gray-500 flex-shrink-0">{currentIndex + 1}/{test.questions.length}</span>
+        {/* Top bar */}
+        <div className="bg-white border-b border-gray-200 px-2 sm:px-4 py-1.5 sm:py-2 flex-shrink-0">
+          <div className="flex items-center justify-between gap-1 sm:gap-3">
+            <div className="flex items-center gap-1 sm:gap-3 min-w-0">
+              <h1 className="text-xs sm:text-base font-bold text-gray-900 truncate">{test.title}</h1>
+              <span className="text-[10px] sm:text-xs text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded flex-shrink-0">{currentIndex + 1}/{test.questions.length}</span>
             </div>
-            <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
+            <div className="flex items-center gap-1 sm:gap-3 flex-shrink-0">
               {test.enableCalculator && (
-                <Button variant="ghost" size="sm" onClick={() => setShowCalculator(!showCalculator)} className="hidden sm:inline-flex">
+                <button onClick={() => setShowCalculator(!showCalculator)} className="text-[10px] sm:text-xs text-indigo-600 font-medium px-1.5 sm:px-2 py-1 bg-indigo-50 rounded-lg">
                   {showCalculator ? "Hide Calc" : "Calc"}
-                </Button>
+                </button>
               )}
-              <div className={`text-base sm:text-xl font-bold font-mono ${timeLeft < 300 ? "text-red-600 animate-pulse" : "text-gray-900"}`}>
+              <div className={`text-sm sm:text-lg font-bold font-mono min-w-[48px] sm:min-w-[64px] text-center ${timeLeft < 300 ? "text-red-600 animate-pulse" : "text-gray-900"}`}>
                 {formatTime(timeLeft)}
               </div>
-              <Button variant="danger" size="sm" onClick={() => setShowSubmitModal(true)}>Submit</Button>
+              <button onClick={() => setShowSubmitModal(true)} className="text-[10px] sm:text-xs text-white font-medium px-1.5 sm:px-3 py-1 bg-red-500 hover:bg-red-600 rounded-lg">
+                Submit
+              </button>
             </div>
           </div>
-          {test.enableCalculator && (
-            <button onClick={() => setShowCalculator(!showCalculator)} className="sm:hidden mt-2 text-xs text-indigo-600 font-medium">
-              {showCalculator ? "Hide Calculator" : "Show Calculator"}
-            </button>
-          )}
-        </div>
-
-        <div className="flex-1 flex overflow-hidden">
-          <div className="hidden sm:flex w-16 md:w-20 bg-white border-r border-gray-200 p-2 md:p-3 flex-col items-center gap-1.5 md:gap-2 overflow-y-auto">
+          {/* Mobile question strip */}
+          <div className="flex sm:hidden gap-1 mt-1.5 overflow-x-auto pb-1">
             {test.questions.map((q: Question, idx: number) => (
-              <button
-                key={q.id}
-                onClick={() => setCurrentIndex(idx)}
-                className={`w-8 h-8 md:w-10 md:h-10 rounded-lg text-xs md:text-sm font-medium transition-colors flex-shrink-0 ${
-                  idx === currentIndex
-                    ? "bg-blue-600 text-white"
-                    : answers[q.id]
-                    ? "bg-green-100 text-green-700 border border-green-300"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                }`}
-              >
+              <button key={q.id} onClick={() => { setCurrentIndex(idx); }}
+                className={`w-6 h-6 rounded text-[10px] font-bold flex-shrink-0 ${idx === currentIndex ? "ring-2 ring-blue-500 ring-offset-1" : ""} ${answers[q.id] ? "bg-emerald-500 text-white" : "bg-gray-200 text-gray-600"}`}>
                 {idx + 1}
               </button>
             ))}
           </div>
+        </div>
 
+        {/* Main content area */}
+        <div className="flex-1 flex overflow-hidden min-h-0">
+          {/* Desktop question palette */}
+          <div className="hidden sm:flex w-14 lg:w-20 bg-white border-r border-gray-200 p-1.5 lg:p-2.5 flex-col items-center gap-1 lg:gap-1.5 overflow-y-auto">
+            {test.questions.map((q: Question, idx: number) => (
+              <button key={q.id} onClick={() => setCurrentIndex(idx)}
+                className={`w-7 h-7 lg:w-9 lg:h-9 rounded-lg text-[10px] lg:text-xs font-bold flex-shrink-0 transition-all ${idx === currentIndex ? "ring-2 ring-blue-500 ring-offset-1 scale-110" : ""} ${answers[q.id] ? "bg-emerald-500 text-white" : "bg-gray-100 text-gray-500 hover:bg-gray-200"}`}>
+                {idx + 1}
+              </button>
+            ))}
+            <div className="mt-auto pt-2 border-t border-gray-100 w-full text-center">
+              <div className="text-[9px] lg:text-[10px] text-gray-400">{answeredCount}/{test.questions.length}</div>
+            </div>
+          </div>
+
+          {/* Question + options */}
           <div className="flex-1 flex flex-col min-w-0">
-            <div className="flex-1 p-3 sm:p-6 md:p-8 overflow-y-auto">
+            <div className="flex-1 p-2 sm:p-4 lg:p-6 overflow-y-auto">
               {showCalculator && (
-                <div className="mb-4">
+                <div className="mb-3">
                   <Calculator />
                 </div>
               )}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
-                <p className="text-xs sm:text-sm text-gray-500 mb-2">Question {currentIndex + 1} of {test.questions.length}</p>
-                <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-4 sm:mb-6"><LatexText text={currentQuestion.questionText} /></h3>
-                <div className="space-y-2 sm:space-y-3">
-                  {currentQuestion.options.map((option: string, idx: number) => (
-                    <label
-                      key={idx}
-                      className={`flex items-center gap-2 sm:gap-3 p-2.5 sm:p-3 rounded-lg border cursor-pointer transition-colors ${
-                        answers[currentQuestion.id] === option
-                          ? "border-blue-500 bg-blue-50"
-                          : "border-gray-200 hover:bg-gray-50"
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        name={`q_${currentQuestion.id}`}
-                        value={option}
-                        checked={answers[currentQuestion.id] === option}
-                        onChange={() => handleAnswer(currentQuestion.id, option)}
-                        className="w-4 h-4 text-blue-600 flex-shrink-0"
-                      />
-                      <span className="text-sm text-gray-700"><LatexText text={option} /></span>
-                    </label>
-                  ))}
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-3 sm:p-5">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="text-[10px] sm:text-xs font-bold text-white bg-blue-600 w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center flex-shrink-0">{currentIndex + 1}</span>
+                  <span className="text-[10px] sm:text-xs text-gray-400">Question {currentIndex + 1} of {test.questions.length}</span>
+                </div>
+                <h3 className="text-sm sm:text-base lg:text-lg font-medium text-gray-900 mb-3 sm:mb-5 leading-relaxed">
+                  <LatexText text={currentQuestion.questionText} />
+                </h3>
+                <div className="space-y-1.5 sm:space-y-2.5">
+                  {currentQuestion.options.map((option: string, idx: number) => {
+                    const labels = ["A", "B", "C", "D", "E", "F"];
+                    return (
+                      <label key={idx}
+                        className={`flex items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-lg border cursor-pointer transition-all text-sm sm:text-base ${
+                          answers[currentQuestion.id] === option
+                            ? "border-blue-500 bg-blue-50 shadow-sm"
+                            : "border-gray-200 hover:bg-gray-50 hover:border-gray-300"
+                        }`}>
+                        <span className={`w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center text-xs sm:text-sm font-bold flex-shrink-0 ${
+                          answers[currentQuestion.id] === option ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-500"
+                        }`}>
+                          {labels[idx] || idx}
+                        </span>
+                        <span className="text-gray-700"><LatexText text={option} /></span>
+                        <input type="radio" name={`q_${currentQuestion.id}`} value={option}
+                          checked={answers[currentQuestion.id] === option}
+                          onChange={() => handleAnswer(currentQuestion.id, option)}
+                          className="sr-only" />
+                      </label>
+                    );
+                  })}
                 </div>
               </div>
+              {test.enableCalculator && (
+                <div className="sm:hidden mt-2">
+                  <button onClick={() => setShowCalculator(!showCalculator)}
+                    className="w-full py-2 text-xs font-medium text-indigo-600 bg-indigo-50 rounded-lg">
+                    {showCalculator ? "Hide Calculator" : "Show Calculator"}
+                  </button>
+                </div>
+              )}
             </div>
 
-            <div className="bg-white border-t border-gray-200 px-3 sm:px-6 py-3 sm:py-4 flex items-center justify-between gap-2">
-              <Button variant="secondary" size="sm" onClick={() => setCurrentIndex((prev) => Math.max(0, prev - 1))} disabled={currentIndex === 0} className="text-xs sm:text-sm">
-                Prev
-              </Button>
-              <div className="text-xs sm:text-sm text-gray-500 hidden sm:block">Answered: {answeredCount}/{test.questions.length}</div>
-              <div className="text-xs sm:text-sm text-gray-500 sm:hidden">{answeredCount}/{test.questions.length}</div>
-              {currentIndex < test.questions.length - 1 ? (
-                <Button size="sm" onClick={() => setCurrentIndex((prev) => Math.min(test.questions.length - 1, prev + 1))} className="text-xs sm:text-sm">
-                  Next
-                </Button>
-              ) : (
-                <Button variant="success" size="sm" onClick={() => setShowSubmitModal(true)} className="text-xs sm:text-sm">Submit</Button>
-              )}
+            {/* Bottom nav */}
+            <div className="bg-white border-t border-gray-200 px-2 sm:px-4 py-2 sm:py-3 flex-shrink-0">
+              <div className="flex items-center justify-between gap-2 max-w-2xl mx-auto">
+                <button onClick={() => setCurrentIndex((prev) => Math.max(0, prev - 1))} disabled={currentIndex === 0}
+                  className="text-xs sm:text-sm font-medium px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 disabled:opacity-30 disabled:cursor-not-allowed">
+                  ← Prev
+                </button>
+                <div className="hidden sm:flex items-center gap-1.5">
+                  {test.questions.map((q: Question, idx: number) => (
+                    <button key={q.id} onClick={() => setCurrentIndex(idx)}
+                      className={`w-5 h-5 rounded text-[9px] font-bold ${idx === currentIndex ? "ring-1 ring-blue-500" : ""} ${answers[q.id] ? "bg-emerald-500 text-white" : "bg-gray-200 text-gray-500"}`}>
+                      {idx + 1}
+                    </button>
+                  ))}
+                </div>
+                <span className="text-[10px] sm:text-xs text-gray-400">{answeredCount}/{test.questions.length} answered</span>
+                {currentIndex < test.questions.length - 1 ? (
+                  <button onClick={() => setCurrentIndex((prev) => Math.min(test.questions.length - 1, prev + 1))}
+                    className="text-xs sm:text-sm font-medium px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700">
+                    Next →
+                  </button>
+                ) : (
+                  <button onClick={() => setShowSubmitModal(true)}
+                    className="text-xs sm:text-sm font-medium px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700">
+                    Submit
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         </div>
 
         <Modal open={showSubmitModal} onClose={() => !submitting ? setShowSubmitModal(false) : null} title="Submit Test" size="sm">
           <p className="text-gray-600 mb-2">Are you sure you want to submit?</p>
-          <p className="text-sm text-gray-500 mb-6">
-            You have answered {answeredCount} of {test.questions.length} questions.
-            {answeredCount < test.questions.length && (
-              <span className="text-red-500 block mt-1">{test.questions.length - answeredCount} questions unanswered.</span>
-            )}
-          </p>
+          <div className="bg-gray-50 rounded-xl p-3 mb-4">
+            <div className="flex gap-3 flex-wrap justify-center">
+              {test.questions.map((q: Question, idx: number) => (
+                <div key={q.id} className={`w-7 h-7 rounded flex items-center justify-center text-[10px] font-bold ${answers[q.id] ? "bg-emerald-500 text-white" : "bg-gray-200 text-gray-500"}`}>
+                  {idx + 1}
+                </div>
+              ))}
+            </div>
+            <p className="text-xs text-center mt-2 text-gray-500">
+              {answeredCount}/{test.questions.length} answered
+              {answeredCount < test.questions.length && (
+                <span className="text-red-500 block">{test.questions.length - answeredCount} unanswered</span>
+              )}
+            </p>
+          </div>
           <div className="flex justify-end gap-3">
             <Button variant="secondary" onClick={() => setShowSubmitModal(false)} disabled={submitting}>Cancel</Button>
             <Button onClick={handleSubmit} loading={submitting}>Submit</Button>

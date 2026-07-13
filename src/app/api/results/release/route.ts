@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
     }
     await prisma.test.update({
       where: { id: testId },
-      data: { immediateResult: true },
+      data: { immediateResult: true, scheduledReleaseAt: null },
     });
     return NextResponse.json({ message: "Results released" });
   } catch (err) {

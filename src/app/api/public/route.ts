@@ -69,7 +69,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const { publicCode, fullName, department, level, email, answers, questionIds } = await req.json();
+    const { publicCode, fullName, department, level, email, answers, questionIds, timeUsed } = await req.json();
     if (!publicCode || !fullName || !department || !level || !email || !answers) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
@@ -80,8 +80,19 @@ export async function POST(req: NextRequest) {
     if (!test) {
       return NextResponse.json({ error: "Test not found" }, { status: 404 });
     }
+    const existingParticipant = await prisma.participant.findFirst({
+      where: { testId: test.id, email: email.toLowerCase().trim() },
+    });
+    if (existingParticipant) {
+      const existingSubmission = await prisma.submission.findFirst({
+        where: { testId: test.id, participantId: existingParticipant.id },
+      });
+      if (existingSubmission) {
+        return NextResponse.json({ error: "This email has already been used to take this test." }, { status: 409 });
+      }
+    }
     const participant = await prisma.participant.create({
-      data: { testId: test.id, fullName, department, level, email },
+      data: { testId: test.id, fullName, department, level, email: email.toLowerCase().trim() },
     });
     const parsedAnswers: Record<string, string> = typeof answers === "string" ? JSON.parse(answers) : answers;
     let presentedQuestions = test.questions;
@@ -107,6 +118,7 @@ export async function POST(req: NextRequest) {
         score: test.autoMark ? score : null,
         percentage: test.autoMark ? percentage : null,
         status: "completed",
+        timeUsed: timeUsed ? parseInt(timeUsed) : null,
       },
     });
     return NextResponse.json({

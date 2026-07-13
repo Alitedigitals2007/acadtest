@@ -10,7 +10,7 @@ export default function TestDetail() {
   const [test, setTest] = useState<any>(null);
   const [questions, setQuestions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<"questions" | "import" | "settings" | "live">("questions");
+  const [activeTab, setActiveTab] = useState<"questions" | "import" | "settings" | "live" | "leaderboard">("questions");
   const [submissionCount, setSubmissionCount] = useState(0);
   const [participants, setParticipants] = useState<any[]>([]);
   const liveRef = useRef<NodeJS.Timeout | null>(null);
@@ -65,6 +65,7 @@ export default function TestDetail() {
         showLeaderboard: t.showLeaderboard ?? false,
         enableCalculator: t.enableCalculator ?? false,
         immediateResult: t.immediateResult ?? true,
+        scheduledReleaseAt: t.scheduledReleaseAt ? toLocalDatetime(t.scheduledReleaseAt) : "",
       });
     } catch (err) { console.error(err); }
     finally { setLoading(false); }
@@ -278,6 +279,7 @@ export default function TestDetail() {
           ...settingsForm,
           startDate: new Date(settingsForm.startDate).toISOString(),
           endDate: new Date(settingsForm.endDate).toISOString(),
+          scheduledReleaseAt: settingsForm.immediateResult ? null : settingsForm.scheduledReleaseAt ? new Date(settingsForm.scheduledReleaseAt).toISOString() : null,
           duration: parseInt(settingsForm.duration),
           numQuestions: parseInt(settingsForm.numQuestions),
         }),
@@ -438,7 +440,7 @@ export default function TestDetail() {
 
       <div className="border-b border-gray-200 overflow-x-auto">
         <div className="flex gap-0">
-          {(["questions", "import", "settings", "live"] as const).map((tab) => (
+          {(["questions", "import", "settings", "live", "leaderboard"] as const).map((tab) => (
             <button key={tab} onClick={() => setActiveTab(tab)}
               className={`px-3 sm:px-5 py-3 text-xs sm:text-sm font-medium border-b-2 transition-colors capitalize whitespace-nowrap ${activeTab === tab ? "border-indigo-600 text-indigo-600" : "border-transparent text-gray-500 hover:text-gray-700"}`}>
               {tab === "live" ? `Live (${submissionCount})` : tab === "import" ? "Import" : tab}
@@ -703,12 +705,24 @@ export default function TestDetail() {
             ].map(({ key, label }) => (
               <label key={key} className="flex items-center justify-between p-2.5 bg-gray-50 rounded-xl cursor-pointer">
                 <span className="text-sm text-gray-700">{label}</span>
-                <button type="button" onClick={() => setSettingsForm({ ...settingsForm, [key]: !settingsForm[key] })}
+                <button type="button" onClick={() => {
+                  const next = !settingsForm[key];
+                  setSettingsForm({ ...settingsForm, [key]: next });
+                  if (next) setSettingsForm((prev: any) => ({ ...prev, scheduledReleaseAt: "" }));
+                }}
                   className={`relative w-10 h-5 rounded-full transition-colors ${settingsForm[key] ? "bg-indigo-600" : "bg-gray-300"}`}>
                   <span className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow-sm transition-transform ${settingsForm[key] ? "translate-x-5" : ""}`} />
                 </button>
               </label>
             ))}
+            {!settingsForm.immediateResult && (
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-1">Scheduled Release Date</label>
+                <input type="datetime-local" value={settingsForm.scheduledReleaseAt || ""} onChange={(e) => setSettingsForm({ ...settingsForm, scheduledReleaseAt: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20" />
+                <p className="text-xs text-gray-400 mt-1">Results will automatically release at this date/time.</p>
+              </div>
+            )}
           </div>
           <button onClick={handleSaveSettings} disabled={savingSettings}
             className="px-6 py-2.5 bg-indigo-600 text-white text-sm font-medium rounded-xl hover:bg-indigo-700 transition-colors disabled:opacity-50">
@@ -788,6 +802,73 @@ export default function TestDetail() {
               </div>
             )}
           </div>
+        </div>
+      )}
+
+      {activeTab === "leaderboard" && (
+        <LeaderboardView testId={params.id as string} />
+      )}
+    </div>
+  );
+}
+
+function LeaderboardView({ testId }: { testId: string }) {
+  const [leaderboard, setLeaderboard] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [testTitle, setTestTitle] = useState("");
+
+  useEffect(() => {
+    fetch(`/api/leaderboard?testId=${testId}`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.leaderboard) {
+          setLeaderboard(data.leaderboard);
+          setTestTitle(data.testTitle);
+        }
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, [testId]);
+
+  if (loading) return <div className="text-center py-10 text-gray-400 text-sm">Loading leaderboard...</div>;
+
+  return (
+    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+      <div className="px-5 lg:px-6 py-4 border-b border-gray-100">
+        <h3 className="text-base font-bold text-gray-900">Leaderboard - {testTitle}</h3>
+      </div>
+      {leaderboard.length === 0 ? (
+        <div className="text-center py-10 text-gray-400 text-sm">No data available.</div>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-gray-100 bg-gray-50/50">
+                <th className="text-left px-4 lg:px-6 py-3 text-xs font-semibold text-gray-500 uppercase">Rank</th>
+                <th className="text-left px-4 lg:px-6 py-3 text-xs font-semibold text-gray-500 uppercase">Name</th>
+                <th className="text-left px-4 lg:px-6 py-3 text-xs font-semibold text-gray-500 uppercase hidden sm:table-cell">Email</th>
+                <th className="text-left px-4 lg:px-6 py-3 text-xs font-semibold text-gray-500 uppercase">Score</th>
+                <th className="text-left px-4 lg:px-6 py-3 text-xs font-semibold text-gray-500 uppercase">%</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-50">
+              {leaderboard.map((entry: any, idx: number) => (
+                <tr key={idx} className={`hover:bg-gray-50 transition-colors ${idx < 3 ? "bg-amber-50/50" : ""}`}>
+                  <td className="px-4 lg:px-6 py-3">
+                    <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${idx === 0 ? "bg-amber-100 text-amber-700" : idx === 1 ? "bg-gray-200 text-gray-600" : idx === 2 ? "bg-orange-100 text-orange-700" : "text-gray-400"}`}>
+                      {idx + 1}
+                    </span>
+                  </td>
+                  <td className="px-4 lg:px-6 py-3 text-sm font-medium text-gray-900">{entry.name}</td>
+                  <td className="px-4 lg:px-6 py-3 text-sm text-gray-500 hidden sm:table-cell">{entry.email}</td>
+                  <td className="px-4 lg:px-6 py-3 text-sm font-semibold text-gray-900">{entry.score}</td>
+                  <td className="px-4 lg:px-6 py-3">
+                    <span className={`text-sm font-bold ${entry.percentage >= 50 ? "text-emerald-600" : "text-red-600"}`}>{entry.percentage}%</span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
     </div>

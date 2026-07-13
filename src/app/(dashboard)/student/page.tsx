@@ -45,19 +45,25 @@ export default function StudentDashboard() {
         <p className="text-indigo-100 mt-1 text-sm">Ready to take your tests? Let&apos;s get started.</p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm text-center">
-          <p className="text-2xl lg:text-3xl font-bold text-indigo-600">{pending}</p>
-          <p className="text-xs lg:text-sm text-gray-600 mt-1">Available</p>
-        </div>
-        <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm text-center">
-          <p className="text-2xl lg:text-3xl font-bold text-emerald-600">{completed}</p>
-          <p className="text-xs lg:text-sm text-gray-600 mt-1">Completed</p>
-        </div>
-        <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm text-center">
-          <p className={`text-2xl lg:text-3xl font-bold ${avgScore >= 50 ? "text-emerald-600" : "text-red-600"}`}>{avgScore}%</p>
-          <p className="text-xs lg:text-sm text-gray-600 mt-1">Avg Score</p>
-        </div>
+
+
+      <div className="flex gap-2 sm:gap-3 flex-wrap">
+        <Link href="/student/tests" className="flex-1 min-w-[120px] bg-white rounded-2xl border border-gray-100 p-4 shadow-sm text-center hover:shadow-md transition-shadow">
+          <p className="text-lg font-bold text-indigo-600">{pending}</p>
+          <p className="text-xs text-gray-600">Available Tests</p>
+        </Link>
+        <Link href="/student/results" className="flex-1 min-w-[120px] bg-white rounded-2xl border border-gray-100 p-4 shadow-sm text-center hover:shadow-md transition-shadow">
+          <p className="text-lg font-bold text-emerald-600">{completed}</p>
+          <p className="text-xs text-gray-600">Completed</p>
+        </Link>
+        <Link href="/student/results" className="flex-1 min-w-[120px] bg-white rounded-2xl border border-gray-100 p-4 shadow-sm text-center hover:shadow-md transition-shadow">
+          <p className={`text-lg font-bold ${avgScore >= 50 ? "text-emerald-600" : "text-red-600"}`}>{avgScore}%</p>
+          <p className="text-xs text-gray-600">Avg Score</p>
+        </Link>
+        <Link href="/leaderboard" className="flex-1 min-w-[120px] bg-white rounded-2xl border border-gray-100 p-4 shadow-sm text-center hover:shadow-md transition-shadow">
+          <p className="text-lg font-bold text-purple-600">🏆</p>
+          <p className="text-xs text-gray-600">Leaderboard</p>
+        </Link>
       </div>
 
       <div className="grid lg:grid-cols-2 gap-6">
