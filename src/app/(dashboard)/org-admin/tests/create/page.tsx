@@ -24,6 +24,8 @@ export default function CreateTestPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...form,
+          startDate: new Date(form.startDate).toISOString(),
+          endDate: new Date(form.endDate).toISOString(),
           duration: parseInt(form.duration),
           numQuestions: parseInt(form.numQuestions),
           organizationId: user.organizationId,

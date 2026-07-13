@@ -42,13 +42,22 @@ export default function TestDetail() {
       setQuestions(qData.questions || []);
       const t = tData.test || tData;
       setTest(t);
+      const toLocalDatetime = (d: string) => {
+        const date = new Date(d);
+        const y = date.getFullYear();
+        const mo = String(date.getMonth() + 1).padStart(2, "0");
+        const dd = String(date.getDate()).padStart(2, "0");
+        const h = String(date.getHours()).padStart(2, "0");
+        const mi = String(date.getMinutes()).padStart(2, "0");
+        return `${y}-${mo}-${dd}T${h}:${mi}`;
+      };
       setSettingsForm({
         title: t.title || "",
         description: t.description || "",
         duration: t.duration || 30,
         numQuestions: t.numQuestions || 10,
-        startDate: t.startDate ? new Date(t.startDate).toISOString().slice(0, 16) : "",
-        endDate: t.endDate ? new Date(t.endDate).toISOString().slice(0, 16) : "",
+        startDate: t.startDate ? toLocalDatetime(t.startDate) : "",
+        endDate: t.endDate ? toLocalDatetime(t.endDate) : "",
         status: t.status || "draft",
         shuffleQuestions: t.shuffleQuestions ?? false,
         shuffleOptions: t.shuffleOptions ?? false,
@@ -267,6 +276,8 @@ export default function TestDetail() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...settingsForm,
+          startDate: new Date(settingsForm.startDate).toISOString(),
+          endDate: new Date(settingsForm.endDate).toISOString(),
           duration: parseInt(settingsForm.duration),
           numQuestions: parseInt(settingsForm.numQuestions),
         }),
