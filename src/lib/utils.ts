@@ -11,21 +11,27 @@ export function calculateAvailable(
   return limit + bonus - used;
 }
 
+const LAGOS_TIMEZONE = "Africa/Lagos";
+
 export function getLagosTime(): Date {
   const now = new Date();
-  const lagosTime = new Date(now.toLocaleString("en-US", { timeZone: "Africa/Lagos" }));
-  return lagosTime;
+  const utcMs = now.getTime() + now.getTimezoneOffset() * 60000;
+  return new Date(utcMs + 3600000);
 }
 
 export function formatLagosTime(date: Date | string): string {
   const d = new Date(date);
-  return d.toLocaleString("en-US", { timeZone: "Africa/Lagos" });
+  return d.toLocaleString("en-US", { timeZone: LAGOS_TIMEZONE });
 }
 
-export function getLagosTime(): Date {
-  return new Date(new Date().toLocaleString("en-US", { timeZone: "Africa/Lagos" }));
+export function formatLagosDate(date: Date | string): string {
+  const d = new Date(date);
+  return d.toLocaleDateString("en-US", { timeZone: LAGOS_TIMEZONE });
 }
 
 export function toLagosISOString(date: Date): string {
-  return new Date(date.toLocaleString("en-US", { timeZone: "Africa/Lagos" })).toISOString();
+  const d = new Date(date);
+  const utcMs = d.getTime() + d.getTimezoneOffset() * 60000;
+  const lagos = new Date(utcMs + 3600000);
+  return lagos.toISOString();
 }
