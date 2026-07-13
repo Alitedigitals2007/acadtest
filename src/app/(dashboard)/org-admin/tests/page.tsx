@@ -74,7 +74,7 @@ export default function OrgAdminTests() {
                 {tests.map((t) => (
                   <tr key={t.id} className="hover:bg-gray-50 transition-colors">
                     <td className="px-4 lg:px-6 py-4">
-                      <p className="text-sm font-medium text-gray-900 truncate max-w-[150px] lg:max-w-none">{t.title}</p>
+                      <p className="text-sm font-medium text-gray-900 truncate max-w-[180px] lg:max-w-none">{t.title}</p>
                     </td>
                     <td className="px-4 lg:px-6 py-4 hidden sm:table-cell">
                       <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full uppercase ${
@@ -92,8 +92,8 @@ export default function OrgAdminTests() {
                     <td className="px-4 lg:px-6 py-4 text-sm text-gray-500 hidden lg:table-cell">{new Date(t.createdAt).toLocaleDateString()}</td>
                     <td className="px-4 lg:px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-2">
-                        <Link href={`/org-admin/tests/${t.id}`} className="px-3 py-1.5 text-xs font-medium text-indigo-600 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition-colors">View</Link>
-                        <button onClick={() => handleDelete(t.id)} className="px-3 py-1.5 text-xs font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors">Delete</button>
+                        <Link href={`/org-admin/tests/${t.id}`} className="px-3 py-2 text-xs font-medium text-indigo-600 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition-colors">View</Link>
+                        <button onClick={() => handleDelete(t.id)} className="px-3 py-2 text-xs font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors">Delete</button>
                       </div>
                     </td>
                   </tr>

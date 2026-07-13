@@ -110,7 +110,7 @@ export default function ParticipantLoginPage() {
               <p className="text-xs text-blue-600">{participant.email}</p>
             </div>
 
-            <div className="grid grid-cols-3 gap-4 mb-6">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
               <div className="bg-emerald-50 rounded-xl p-4 text-center">
                 <p className="text-xs text-emerald-700">Score</p>
                 <p className="text-2xl font-bold text-emerald-600">{r.score ?? "-"}</p>
@@ -119,9 +119,9 @@ export default function ParticipantLoginPage() {
                 <p className="text-xs text-blue-700">Percentage</p>
                 <p className="text-2xl font-bold text-blue-900">{r.percentage !== null ? `${r.percentage}%` : "-"}</p>
               </div>
-              <div className={`bg-${r.percentage && r.percentage >= 50 ? "emerald" : "red"}-50 rounded-xl p-4 text-center`}>
+              <div className={`${r.percentage !== null && r.percentage >= 50 ? "bg-emerald-50" : "bg-red-50"} rounded-xl p-4 text-center`}>
                 <p className="text-xs text-gray-700">Status</p>
-                <p className={`text-lg font-bold ${r.percentage && r.percentage >= 50 ? "text-emerald-600" : "text-red-600"}`}>
+                <p className={`text-lg font-bold ${r.percentage !== null && r.percentage >= 50 ? "text-emerald-600" : "text-red-600"}`}>
                   {r.percentage !== null ? (r.percentage >= 50 ? "Passed" : "Failed") : "Pending"}
                 </p>
               </div>

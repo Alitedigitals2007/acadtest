@@ -63,7 +63,7 @@ export default function SuperAdminOrganizations() {
               {orgs.map((org) => (
                 <tr key={org.id} className="hover:bg-gray-50 transition-colors">
                   <td className="px-4 lg:px-6 py-4">
-                    <p className="text-sm font-medium text-gray-900 truncate max-w-[120px] lg:max-w-none">{org.name}</p>
+                    <p className="text-sm font-medium text-gray-900 truncate max-w-[160px] lg:max-w-none">{org.name}</p>
                     <p className="text-xs text-gray-500">{org.email}</p>
                   </td>
                   <td className="px-4 lg:px-6 py-4 hidden sm:table-cell">
@@ -87,11 +87,11 @@ export default function SuperAdminOrganizations() {
                   <td className="px-4 lg:px-6 py-4 text-sm text-gray-500 hidden lg:table-cell">{new Date(org.createdAt).toLocaleDateString()}</td>
                   <td className="px-4 lg:px-6 py-4 text-right">
                     <div className="flex items-center justify-end gap-1 flex-wrap">
-                      {org.status !== "active" && <button onClick={() => { setActionOrg(org); setActionType("status"); setActionValue("active"); handleAction(); }} className="px-2.5 py-1.5 text-xs font-medium text-emerald-600 bg-emerald-50 rounded-lg hover:bg-emerald-100 transition-colors">Activate</button>}
-                      {org.status !== "suspended" && <button onClick={() => { setActionOrg(org); setActionType("status"); setActionValue("suspended"); handleAction(); }} className="px-2.5 py-1.5 text-xs font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors">Suspend</button>}
-                      {org.status === "suspended" && <button onClick={() => { setActionOrg(org); setActionType("status"); setActionValue("active"); handleAction(); }} className="px-2.5 py-1.5 text-xs font-medium text-indigo-600 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition-colors">Restore</button>}
-                      <button onClick={() => { setActionOrg(org); setActionType("bonusTests"); setActionValue("5"); }} className="px-2.5 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">+Tests</button>
-                      <button onClick={() => { setActionOrg(org); setActionType("bonusStudents"); setActionValue("100"); }} className="px-2.5 py-1.5 text-xs font-medium text-purple-600 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors">+Students</button>
+                      {org.status !== "active" && <button onClick={() => { setActionOrg(org); setActionType("status"); setActionValue("active"); handleAction(); }} className="px-2.5 py-2 text-xs font-medium text-emerald-600 bg-emerald-50 rounded-lg hover:bg-emerald-100 transition-colors">Activate</button>}
+                      {org.status !== "suspended" && <button onClick={() => { setActionOrg(org); setActionType("status"); setActionValue("suspended"); handleAction(); }} className="px-2.5 py-2 text-xs font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors">Suspend</button>}
+                      {org.status === "suspended" && <button onClick={() => { setActionOrg(org); setActionType("status"); setActionValue("active"); handleAction(); }} className="px-2.5 py-2 text-xs font-medium text-indigo-600 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition-colors">Restore</button>}
+                      <button onClick={() => { setActionOrg(org); setActionType("bonusTests"); setActionValue("5"); }} className="px-2.5 py-2 text-xs font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">+Tests</button>
+                      <button onClick={() => { setActionOrg(org); setActionType("bonusStudents"); setActionValue("100"); }} className="px-2.5 py-2 text-xs font-medium text-purple-600 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors">+Students</button>
                     </div>
                   </td>
                 </tr>

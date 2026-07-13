@@ -45,7 +45,7 @@ export default function StudentDashboard() {
         <p className="text-indigo-100 mt-1 text-sm">Ready to take your tests? Let&apos;s get started.</p>
       </div>
 
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm text-center">
           <p className="text-2xl lg:text-3xl font-bold text-indigo-600">{pending}</p>
           <p className="text-xs lg:text-sm text-gray-600 mt-1">Available</p>
@@ -78,7 +78,7 @@ export default function StudentDashboard() {
                     {done ? (
                       <span className="text-xs text-emerald-600 font-medium bg-emerald-50 px-2.5 py-1 rounded-full">Done</span>
                     ) : (
-                      <Link href={`/student/tests/${t.id}`} className="text-xs font-medium text-white bg-indigo-600 px-3 py-1.5 rounded-xl hover:bg-indigo-700 transition-colors">
+                      <Link href={`/student/tests/${t.id}`} className="text-xs font-medium text-white bg-indigo-600 px-4 py-2 rounded-xl hover:bg-indigo-700 transition-colors">
                         Start
                       </Link>
                     )}

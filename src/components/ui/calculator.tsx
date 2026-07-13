@@ -64,7 +64,7 @@ export default function Calculator() {
   ];
 
   return (
-    <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-4 w-72">
+    <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-4 w-full max-w-xs">
       <div className="flex items-center justify-between mb-3">
         <h4 className="text-sm font-semibold text-gray-700">Calculator</h4>
         <button

@@ -6,6 +6,11 @@ export const metadata: Metadata = {
   description: "Multi-tenant CBT and assessment platform for schools and organizations",
 };
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+};
+
 export default function RootLayout({
   children,
 }: {

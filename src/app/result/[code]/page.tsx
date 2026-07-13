@@ -73,15 +73,16 @@ export default function PublicResult() {
           {error && (
             <div className="bg-red-50 text-red-700 px-4 py-3 rounded-lg text-sm mb-4">{error}</div>
           )}
-          <div className="flex items-end gap-3 mb-6">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-end gap-3 mb-6">
             <Input
+              className="w-full sm:w-auto"
               label="Your Email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
             />
-            <Button onClick={handleSearch} loading={loading}>Search</Button>
+            <Button className="w-full sm:w-auto" onClick={handleSearch} loading={loading}>Search</Button>
           </div>
 
           {searched && !loading && (

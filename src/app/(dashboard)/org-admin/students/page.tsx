@@ -109,7 +109,7 @@ export default function OrgAdminStudents() {
                     <td className="px-4 lg:px-6 py-4">
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 bg-gradient-to-br from-indigo-400 to-blue-500 rounded-full flex items-center justify-center text-white text-xs font-semibold flex-shrink-0">{s.fullName.charAt(0)}</div>
-                        <p className="text-sm font-medium text-gray-900 truncate max-w-[120px] lg:max-w-none">{s.fullName}</p>
+                        <p className="text-sm font-medium text-gray-900 truncate max-w-[160px] lg:max-w-none">{s.fullName}</p>
                       </div>
                     </td>
                     <td className="px-4 lg:px-6 py-4 text-sm text-gray-600 hidden sm:table-cell">{s.department}</td>

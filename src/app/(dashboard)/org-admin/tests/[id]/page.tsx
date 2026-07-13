@@ -415,7 +415,7 @@ export default function TestDetail() {
           <div><span className="text-gray-500">Start:</span> <span className="font-medium">{new Date(test.startDate).toLocaleDateString()}</span></div>
           <div><span className="text-gray-500">End:</span> <span className="font-medium">{new Date(test.endDate).toLocaleDateString()}</span></div>
         </div>
-        <div className="flex flex-wrap gap-1.5 mt-3 ml-8">
+        <div className="flex flex-wrap gap-1.5 mt-3 ml-0 sm:ml-8">
           {test.shuffleQuestions && <span className="text-[10px] bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full font-medium">Shuffle Qs</span>}
           {test.shuffleOptions && <span className="text-[10px] bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full font-medium">Shuffle Options</span>}
           {test.autoMark && <span className="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-medium">Auto Mark</span>}
@@ -426,7 +426,7 @@ export default function TestDetail() {
       </div>
 
       <div className="border-b border-gray-200 overflow-x-auto">
-        <div className="flex gap-0 min-w-max">
+        <div className="flex gap-0">
           {(["questions", "import", "settings", "live"] as const).map((tab) => (
             <button key={tab} onClick={() => setActiveTab(tab)}
               className={`px-3 sm:px-5 py-3 text-xs sm:text-sm font-medium border-b-2 transition-colors capitalize whitespace-nowrap ${activeTab === tab ? "border-indigo-600 text-indigo-600" : "border-transparent text-gray-500 hover:text-gray-700"}`}>
