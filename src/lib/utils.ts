@@ -14,9 +14,7 @@ export function calculateAvailable(
 const LAGOS_TIMEZONE = "Africa/Lagos";
 
 export function getLagosTime(): Date {
-  const now = new Date();
-  const utcMs = now.getTime() + now.getTimezoneOffset() * 60000;
-  return new Date(utcMs + 3600000);
+  return new Date();
 }
 
 export function formatLagosTime(date: Date | string): string {
@@ -31,7 +29,5 @@ export function formatLagosDate(date: Date | string): string {
 
 export function toLagosISOString(date: Date): string {
   const d = new Date(date);
-  const utcMs = d.getTime() + d.getTimezoneOffset() * 60000;
-  const lagos = new Date(utcMs + 3600000);
-  return lagos.toISOString();
+  return d.toLocaleString("en-CA", { timeZone: "Africa/Lagos", hour12: false }).replace(", ", "T") + ":00.000+01:00";
 }
