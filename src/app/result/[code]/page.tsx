@@ -41,8 +41,8 @@ export default function PublicResult() {
         const resRes = await fetch(`/api/results?testId=${testData.test.id}`);
         const resData = await resRes.json();
         const filtered = (resData.results || []).filter(
-          (r: { student?: { email: string } }) =>
-            (r.student && r.student.email.toLowerCase() === email.toLowerCase()) ||
+          (r: { resultReleased?: boolean; student?: { email: string } }) =>
+            r.resultReleased && (r.student && r.student.email.toLowerCase() === email.toLowerCase()) ||
             false
         );
         setResults(filtered);

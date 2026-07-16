@@ -24,7 +24,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
-    const { status, studentLimit, testLimit, bonusStudents, bonusTests, subscription } = await req.json();
+    const { status, studentLimit, testLimit, bonusStudents, bonusTests, subscription, giveCertificates } = await req.json();
     const data: Record<string, unknown> = {};
     if (status !== undefined) data.status = status;
     if (studentLimit !== undefined) data.studentLimit = studentLimit;
@@ -32,6 +32,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     if (bonusStudents !== undefined) data.bonusStudents = bonusStudents;
     if (bonusTests !== undefined) data.bonusTests = bonusTests;
     if (subscription !== undefined) data.subscription = subscription;
+    if (giveCertificates !== undefined) data.giveCertificates = giveCertificates;
     const org = await prisma.organization.update({
       where: { id },
       data,

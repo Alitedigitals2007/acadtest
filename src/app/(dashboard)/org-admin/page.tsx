@@ -6,8 +6,10 @@ import Link from "next/link";
 export default function OrgAdminDashboard() {
   const router = useRouter();
   const [stats, setStats] = useState<any>(null);
+  const [org, setOrg] = useState<any>(null);
   const [recent, setRecent] = useState<{ tests: any[]; students: any[] }>({ tests: [], students: [] });
   const [loading, setLoading] = useState(true);
+  const [certToggling, setCertToggling] = useState(false);
 
   useEffect(() => {
     const stored = localStorage.getItem("acadtest_user");
@@ -23,6 +25,7 @@ export default function OrgAdminDashboard() {
       .then(([orgData, testsData, studentsData]) => {
         const org = orgData.organization;
         if (org?.status === "pending") { router.push("/org-admin/payment"); return; }
+        setOrg(org);
         setStats({
           testsUsed: org.testsUsed || 0, testLimit: org.testLimit || 0, bonusTests: org.bonusTests || 0,
           studentsUsed: org.studentsUsed || 0, studentLimit: org.studentLimit || 0, bonusStudents: org.bonusStudents || 0,
@@ -66,6 +69,38 @@ export default function OrgAdminDashboard() {
           <p className={`text-2xl lg:text-3xl font-bold mt-1 ${studentsRemaining <= 20 ? "text-red-600" : "text-emerald-600"}`}>{studentsRemaining}</p>
         </div>
       </div>
+
+      {org && (
+        <div className="bg-white rounded-2xl border border-gray-100 p-5 lg:p-6 shadow-sm">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-base font-bold text-gray-900">Organization Settings</h3>
+              <p className="text-xs text-gray-500 mt-0.5">Configure certificate issuance for participants</p>
+            </div>
+            <label className="flex items-center gap-3 cursor-pointer">
+              <span className="text-sm text-gray-700 font-medium">Issue Certificates</span>
+              <button
+                onClick={async () => {
+                  setCertToggling(true);
+                  try {
+                    await fetch(`/api/organizations/${org.id}`, {
+                      method: "PATCH",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ giveCertificates: !org.giveCertificates }),
+                    });
+                    setOrg({ ...org, giveCertificates: !org.giveCertificates });
+                  } catch {}
+                  setCertToggling(false);
+                }}
+                disabled={certToggling}
+                className={`relative w-10 h-5 rounded-full transition-colors ${org.giveCertificates ? "bg-indigo-600" : "bg-gray-300"}`}
+              >
+                <span className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow-sm transition-transform ${org.giveCertificates ? "translate-x-5" : ""}`} />
+              </button>
+            </label>
+          </div>
+        </div>
+      )}
 
       <div className="grid lg:grid-cols-2 gap-6">
         <div className="bg-white rounded-2xl border border-gray-100 p-5 lg:p-6 shadow-sm">

@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
 
     const test = await prisma.test.findUnique({
       where: { publicCode: code },
-      select: { id: true, title: true, immediateResult: true, scheduledReleaseAt: true, endDate: true, status: true },
+      select: { id: true, title: true, immediateResult: true, scheduledReleaseAt: true, endDate: true, status: true, organization: { select: { giveCertificates: true } } },
     });
     if (!test) {
       return NextResponse.json({ error: "Test not found" }, { status: 404 });
@@ -51,9 +51,6 @@ export async function POST(req: NextRequest) {
     if (!released && test.scheduledReleaseAt && new Date(test.scheduledReleaseAt) <= now) {
       released = true;
     }
-    if (!released && test.endDate && new Date(test.endDate) <= now) {
-      released = true;
-    }
 
     if (!released) {
       return NextResponse.json({
@@ -76,6 +73,7 @@ export async function POST(req: NextRequest) {
         timeUsed: submission.timeUsed,
       },
       hoursRemaining,
+      giveCertificates: test.organization?.giveCertificates ?? true,
     });
   } catch (err) {
     return NextResponse.json({ error: "Login failed", details: String(err) }, { status: 500 });

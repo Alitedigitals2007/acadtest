@@ -10,6 +10,7 @@ interface ResultData {
   participant: { id: string; fullName: string; email: string };
   result: { id: string; score: number | null; percentage: number | null; status: string; submittedAt: string; timeUsed?: number };
   hoursRemaining: number;
+  giveCertificates?: boolean;
 }
 
 interface Question {
@@ -329,9 +330,11 @@ export default function ParticipantLoginPage() {
               <Button variant="outline" onClick={handlePrint}>
                 Print
               </Button>
-              <Button variant="outline" onClick={handleDownloadCertificate} loading={generatingCert}>
-                Certificate
-              </Button>
+              {(result.giveCertificates ?? true) && (
+                <Button variant="outline" onClick={handleDownloadCertificate} loading={generatingCert}>
+                  Certificate
+                </Button>
+              )}
               <a href={`/leaderboard?testId=${result.test.id}`} target="_blank"
                 className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-purple-600 bg-purple-50 rounded-lg hover:bg-purple-100">
                 Leaderboard

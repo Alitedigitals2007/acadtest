@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getLagosTime } from "@/lib/utils";
 
 export async function POST(req: NextRequest) {
   try {
@@ -10,10 +11,19 @@ export async function POST(req: NextRequest) {
 
     const test = await prisma.test.findUnique({
       where: { publicCode: code },
-      select: { id: true, title: true, immediateResult: true },
+      select: { id: true, title: true, immediateResult: true, scheduledReleaseAt: true },
     });
     if (!test) {
       return NextResponse.json({ error: "Test not found" }, { status: 404 });
+    }
+
+    const now = new Date();
+    let released = test.immediateResult;
+    if (!released && test.scheduledReleaseAt && new Date(test.scheduledReleaseAt) <= now) {
+      released = true;
+    }
+    if (!released) {
+      return NextResponse.json({ error: "Results for this test have not been released yet. Please check back later." }, { status: 403 });
     }
 
     const participant = await prisma.participant.findFirst({

@@ -37,6 +37,7 @@ model Organization {
   bonusStudents  Int      @default(0)
   bonusTests     Int      @default(0)
   subscription   String?
+  giveCertificates Boolean @default(true)
   createdAt      DateTime @default(now())
 
   users    User[]

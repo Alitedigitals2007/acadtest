@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
       include: {
         student: { select: { id: true, fullName: true, email: true, department: true, level: true } },
         participant: { select: { id: true, fullName: true, email: true, department: true, level: true } },
-        test: { select: { id: true, title: true, autoMark: true, immediateResult: true, scheduledReleaseAt: true, endDate: true } },
+        test: { select: { id: true, title: true, autoMark: true, immediateResult: true, scheduledReleaseAt: true, endDate: true, organization: { select: { giveCertificates: true } } } },
       },
     });
     const now = getLagosTime();
@@ -26,12 +26,10 @@ export async function GET(req: NextRequest) {
       if (!released && test.scheduledReleaseAt && new Date(test.scheduledReleaseAt) <= now) {
         released = true;
       }
-      if (!released && test.endDate && new Date(test.endDate) <= now) {
-        released = true;
-      }
       return {
         ...r,
         resultReleased: released,
+        giveCertificates: test.organization?.giveCertificates ?? true,
       };
     });
     return NextResponse.json({ results: mapped });
